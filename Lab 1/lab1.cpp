@@ -45,9 +45,8 @@ void display (){
 }
 
 void reshape(int w, int h){
-
-glViewport(0,0, (GLsizei)w, (GLsizei)h);
-glMatrixMode(GL_PROJECTION);
-gluOrtho2D(-10, 10, -10, 10);
-glMatrixMode(GL_MODELVIEW);
+    glViewport(0,0, (GLsizei)w, (GLsizei)h);
+    glMatrixMode(GL_PROJECTION);
+    gluOrtho2D(-10, 10, -10, 10);
+    glMatrixMode(GL_MODELVIEW);
 }
