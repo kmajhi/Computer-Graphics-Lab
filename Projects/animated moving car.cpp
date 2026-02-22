@@ -6,15 +6,13 @@ void display();
 void reshape(int,int);
 void timer(int);
 
-// Global variables for animation
 float truckX = 0.0f;
-float direction = 0.1f; // Direction: positive = right, negative = left
+float direction = 0.1f;
 
 void init(){
-    glClearColor(1.0, 1.0, 1.0, 1.0); // White background
+    glClearColor(1.0, 1.0, 1.0, 1.0);
 }
 
-// 1. Simple Square Function
 void drawSquare(float r, float g, float b){
     glColor3f(r, g, b);
     glBegin(GL_QUADS);
@@ -22,7 +20,6 @@ void drawSquare(float r, float g, float b){
     glVertex2f(1, -1); glVertex2f(1, 1);
     glEnd();
 
-    // Black Outline
     glColor3f(0, 0, 0);
     glBegin(GL_LINE_LOOP);
     glVertex2f(-1, 1); glVertex2f(-1, -1);
@@ -30,16 +27,13 @@ void drawSquare(float r, float g, float b){
     glEnd();
 }
 
-// 2. Simple Circle Function (Using GLU Disk)
 void drawCircle(float r, float g, float b) {
     GLUquadric *quad;
     quad = gluNewQuadric();
 
-    // Fill Color
     glColor3f(r, g, b);
-    gluDisk(quad, 0, 1, 32, 1); // Inner radius 0, Outer radius 1
+    gluDisk(quad, 0, 1, 32, 1);
 
-    // Black Outline
     glColor3f(0, 0, 0);
     gluQuadricDrawStyle(quad, GLU_SILHOUETTE);
     gluDisk(quad, 0, 1, 32, 1);
@@ -49,35 +43,30 @@ void display(){
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
 
-    // CARGO (Blue)
     glPushMatrix();
         glTranslatef(2.5 + truckX, 1.0, 0);
         glScalef(5.0, 3.5, 1.0);
         drawSquare(0.2, 0.5, 0.9);
     glPopMatrix();
 
-    // CAB (Red)
     glPushMatrix();
         glTranslatef(-4.5 + truckX, -0.5, 0);
         glScalef(2.0, 2.0, 1.0);
         drawSquare(0.9, 0.2, 0.2);
     glPopMatrix();
 
-    // WINDOW (Light Blue)
     glPushMatrix();
         glTranslatef(-4.2 + truckX, 0.2, 0);
         glScalef(1.2, 0.8, 1.0);
         drawSquare(0.7, 0.9, 1.0);
     glPopMatrix();
 
-    // FRONT WHEEL
     glPushMatrix();
         glTranslatef(-4.0 + truckX, -2.5, 0);
         glScalef(1.3, 1.3, 1.0);
         drawCircle(0.3, 0.3, 0.3);
     glPopMatrix();
 
-    // REAR WHEEL
     glPushMatrix();
         glTranslatef(4.5 + truckX, -2.5, 0);
         glScalef(1.3, 1.3, 1.0);
@@ -96,12 +85,10 @@ void reshape(int w, int h){
 }
 
 void timer(int){
-    // Update truck position
     truckX += direction;
 
-    // Reverse direction at boundaries
-    if(truckX > 5.0f) direction = -0.1f;
-    if(truckX < -5.0f) direction = 0.1f;
+    if(truckX > 2.0f) direction = -0.1f;
+    if(truckX < -3.0f) direction = 0.1f;
 
     glutPostRedisplay();
     glutTimerFunc(1000/60, timer, 0);
