@@ -1,116 +1,131 @@
-#include <windows.h>
-#ifdef __APPLE__
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
+#include<GL/gl.h>
+#include<GL/glu.h>
+#include<GL/glut.h>
+#include<math.h>
 
-#include <ctime>
-#include <cmath>
+float hourAngle = 0;
+float minuteAngle = 0;
+float secondAngle = 0;
 
-int windowWidth = 500, windowHeight = 500;
+void display();
+void reshape(int,int);
+void timer(int);
 
-// Draw clock circle
-void drawCircle() {
-    glLineWidth(4);
-    glBegin(GL_LINE_LOOP);
-    for (int i = 0; i < 360; i++) {
-        float angle = i * 3.14159f / 180.0f;
-        glVertex2f(0.9f * cos(angle), 0.9f * sin(angle));
-    }
+void init(){
+    glClearColor(1.0, 1.0, 1.0, 1.0);
+}
+
+// Clock Body
+void drawCircle(float radius, float r, float g, float b) {
+    GLUquadric *quad = gluNewQuadric();
+
+    glColor3f(r, g, b);
+    gluDisk(quad, 0, radius, 80, 1);
+
+    glColor3f(0, 0, 0);
+    gluQuadricDrawStyle(quad, GLU_SILHOUETTE);
+    gluDisk(quad, 0, radius, 80, 1);
+}
+
+// Hand
+void drawHand(float length, float width){
+    glBegin(GL_QUADS);
+        glVertex2f(-width, 0);
+        glVertex2f(width, 0);
+        glVertex2f(width, length);
+        glVertex2f(-width, length);
     glEnd();
 }
 
-// Draw clock ticks (hour and minute)
-void drawTicks() {
-    for(int i=0; i<60; i++){
-        float angle = i * 6 * 3.14159f / 180.0f; // 6 degrees per tick
-        float inner = (i%5==0)?0.75f:0.85f;      // hour ticks longer
-        float outer = 0.9f;
-        glLineWidth((i%5==0)?3:1);
-        glBegin(GL_LINES);
-            glVertex2f(inner*sin(angle), inner*cos(angle));
-            glVertex2f(outer*sin(angle), outer*cos(angle));
-        glEnd();
+// Hour Ticks
+void drawTicks(){
+    for(int i=0; i<12; i++){
+        glPushMatrix();
+            glRotatef(i*30, 0,0,1);
+            glColor3f(0,0,0);
+
+            glBegin(GL_QUADS);
+                glVertex2f(-0.05, 2.7);
+                glVertex2f(0.05, 2.7);
+                glVertex2f(0.05, 3.0);
+                glVertex2f(-0.05, 3.0);
+            glEnd();
+        glPopMatrix();
     }
 }
 
-// Draw a hand
-void drawHand(float angle, float length, float width) {
-    glPushMatrix();
-    glRotatef(angle, 0, 0, 1);
-    glLineWidth(width);
-    glBegin(GL_LINES);
-        glVertex2f(0, 0);
-        glVertex2f(0, length);
-    glEnd();
-    glPopMatrix();
-}
-
-// Display function
-void display() {
+void display(){
     glClear(GL_COLOR_BUFFER_BIT);
+    glLoadIdentity();
 
-    // Draw clock circle and ticks
-    glColor3f(0,0,0);
-    drawCircle();
+    // Clock Body
+    drawCircle(3, 0.97, 0.97, 0.97);
+
+    // Ticks
     drawTicks();
 
-    // Get current time
-    time_t t;
-    time(&t);
-    struct tm *timeinfo = localtime(&t);
-    int hours = timeinfo->tm_hour % 12;
-    int minutes = timeinfo->tm_min;
-    int seconds = timeinfo->tm_sec;
+    // Hour Hand (Dark Green)
+    glPushMatrix();
+        glRotatef(hourAngle, 0,0,1);
+        glColor3f(0.0, 0.4, 0.0);
+        drawHand(1.5, 0.08);
+    glPopMatrix();
 
-    // Calculate angles
-    float secondAngle = -6 * seconds + 90;
-    float minuteAngle = -6 * minutes - seconds*0.1 + 90;
-    float hourAngle = -30 * hours - minutes*0.5 + 90;
+    // Minute Hand (Blue)
+    glPushMatrix();
+        glRotatef(minuteAngle, 0,0,1);
+        glColor3f(0.0, 0.2, 0.8);
+        drawHand(2.2, 0.06);
+    glPopMatrix();
 
-    // Draw hands
-    glColor3f(1,0,0); drawHand(secondAngle, 0.8f, 1); // seconds
-    glColor3f(0,0,1); drawHand(minuteAngle, 0.6f, 3); // minutes
-    glColor3f(0,0,0); drawHand(hourAngle, 0.4f, 5);   // hours
+    // Second Hand (Red)
+    glPushMatrix();
+        glRotatef(secondAngle, 0,0,1);
+        glColor3f(1.0, 0.0, 0.0);
+        drawHand(2.6, 0.03);
+    glPopMatrix();
 
-    // Draw center
-    glPointSize(8);
-    glBegin(GL_POINTS);
-        glVertex2f(0,0);
-    glEnd();
+    // Center Dot
+    GLUquadric *center = gluNewQuadric();
+    glColor3f(0,0,0);
+    gluDisk(center, 0, 0.12, 40, 1);
 
     glutSwapBuffers();
 }
 
-// Reshape function
-void reshape(int w, int h) {
+// Flexible Reshape (Prevents Stretching)
+void reshape(int w, int h){
     glViewport(0,0,w,h);
+
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    if (w <= h)
-        gluOrtho2D(-1,1,-1.0f*(float)h/w,1.0f*(float)h/w);
+
+    float aspect = (float)w / (float)h;
+
+    if(aspect >= 1)
+        gluOrtho2D(-4*aspect, 4*aspect, -4, 4);
     else
-        gluOrtho2D(-1.0f*(float)w/h,1.0f*(float)w/h,-1,1);
+        gluOrtho2D(-4, 4, -4/aspect, 4/aspect);
+
     glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
 }
 
-// Timer for updating every second
-void timer(int value) {
+void timer(int){
+    secondAngle -= 6;       // 6 degrees per second
+    minuteAngle -= 0.1;     // slow movement
+    hourAngle   -= 0.008;   // very slow movement
+
     glutPostRedisplay();
     glutTimerFunc(1000, timer, 0);
 }
 
-// Main function
-int main(int argc, char** argv) {
+int main(int argc, char**argv){
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-    glutInitWindowSize(windowWidth, windowHeight);
-    glutCreateWindow("Analog Clock with Ticks");
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
+    glutInitWindowSize(600,600);
+    glutCreateWindow("Analog Clock");
 
-    glClearColor(1,1,1,1); // white background
-
+    init();
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutTimerFunc(0, timer, 0);
