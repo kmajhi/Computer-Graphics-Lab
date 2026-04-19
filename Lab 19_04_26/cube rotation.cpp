@@ -41,50 +41,47 @@ int main(int argc, char**argv)
 void cube(){
     glBegin(GL_QUADS);
 
-    //front
-    glColor3f(1.0,0.0,0.0); //red
-    glVertex3f(1,1,0);
-    glVertex3f(-1,1,0);
-    glVertex3f(-1,-1,0);
-    glVertex3f(1,-1,0);
+    // FRONT (z = 1)
+    glColor3f(1.0,0.0,0.0);
+    glVertex3f(1,1,1);
+    glVertex3f(-1,1,1);
+    glVertex3f(-1,-1,1);
+    glVertex3f(1,-1,1);
 
+    // BACK (z = -1)
+    glColor3f(0.0,1.0,0.0);
+    glVertex3f(1,1,-1);
+    glVertex3f(-1,1,-1);
+    glVertex3f(-1,-1,-1);
+    glVertex3f(1,-1,-1);
 
-    //rear/back
-    glColor3f(0.0,1.0,0.0);//green
-    glVertex3f(1,1,0);
-    glVertex3f(-1,1,0);
-    glVertex3f(-1,-1,0);
-    glVertex3f(1,-1,0);
+    // LEFT
+    glColor3f(0.0,0.0,1.0);
+    glVertex3f(-1,1,1);
+    glVertex3f(-1,1,-1);
+    glVertex3f(-1,-1,-1);
+    glVertex3f(-1,-1,1);
 
-    //left
-    glColor3f(0.0,0.0,1.0);//blue
-    glVertex3f(1,1,0);
-    glVertex3f(-1,1,0);
-    glVertex3f(-1,-1,0);
-    glVertex3f(1,-1,0);
+    // RIGHT
+    glColor3f(1.0,1.0,0.0);
+    glVertex3f(1,1,1);
+    glVertex3f(1,1,-1);
+    glVertex3f(1,-1,-1);
+    glVertex3f(1,-1,1);
 
-    //right
-    glColor3f(1.0,1.0,0.0);//yellow
-    glVertex3f(1,1,0);
-    glVertex3f(-1,1,0);
-    glVertex3f(-1,-1,0);
-    glVertex3f(1,-1,0);
+    // TOP
+    glColor3f(0.0,1.0,1.0);
+    glVertex3f(1,1,1);
+    glVertex3f(-1,1,1);
+    glVertex3f(-1,1,-1);
+    glVertex3f(1,1,-1);
 
-    //up
-    glColor3f(0.0,1.0,1.0);//cyan
-    glVertex3f(1,1,0);
-    glVertex3f(-1,1,0);
-    glVertex3f(-1,-1,0);
-    glVertex3f(1,-1,0);
-
-    //down
-    glColor3f(1.0,0.5,0.0);//orange
-    glVertex3f(1,1,0);
-    glVertex3f(-1,1,0);
-    glVertex3f(-1,-1,0);
-    glVertex3f(1,-1,0);
-
-
+    // BOTTOM
+    glColor3f(1.0,0.5,0.0);
+    glVertex3f(1,-1,1);
+    glVertex3f(-1,-1,1);
+    glVertex3f(-1,-1,-1);
+    glVertex3f(1,-1,-1);
 
     glEnd();
 }
@@ -118,34 +115,30 @@ void display()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 
-    glPushMatrix();
-    glRotatef(angle,0,1,0);
-    glTranslatef(x_position, y_position,0);
-
-    cube();// For the cube
+    // move camera backward
+    glTranslatef(0.0, 0.0, -7.0);
+    glRotatef(angle, 0,1, 1);
 
     glPushMatrix();
-    glScalef(2,2,1);
-    //drawSquare();
-    glPopMatrix();
+    glTranslatef(x_position, y_position, 0);
 
-    glPushMatrix();
-    glScalef(1.5,1,1);
-    //drawTriangle();
-    glPopMatrix();
+    cube();
 
     glPopMatrix();
-
 
     glutSwapBuffers();
 }
+
+
 void reshape(int w, int h)
 {
     glViewport(0,0,(GLsizei)w,(GLsizei)h);
+
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    //gluOrtho2D(-10,10,-10,10);
-    gluPerspective(60,1,2.0,50.5);
+
+    gluPerspective(60.0, (float)w/(float)h, 1.0, 100.0);
+
     glMatrixMode(GL_MODELVIEW);
 }
 
@@ -181,7 +174,7 @@ void KeyboardKeys(unsigned char key, int x, int y){
     switch(key)
     {
     case 'a':
-        angle-=step;
+        angle-=5;
         break;
 
     }
