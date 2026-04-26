@@ -399,15 +399,15 @@ static void display(void)
 static void idle(void)
 {
     // faster animation
-    tx += 1.8f;      // car speed
+    tx += 0.6f;      // car speed
     if (tx > 120.0f)
         tx = -500.0f;
 
-    bx += 1.4f;      // truck speed
+    bx += 0.3f;      // truck speed
     if (bx > 120.0f)
         bx = -510.0f;
 
-    shift += 0.6f;   // cloud speed
+    shift += 0.1f;   // cloud speed
     if (shift > 500.0f)
         shift = -500.0f;
 
